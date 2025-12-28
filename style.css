@@ -1,0 +1,82 @@
+:root{
+    /* background-color */
+    --primary-color:rgb(15, 15, 15);
+    --secondary-color:white;
+
+    /* color-combination */
+    --p2-color:rgb(17, 17, 17);
+    --s2-color:#787676;
+
+    /* font-size */
+    --big-size:30px;
+    --mid:size:25px;
+    --small-size:20px
+
+    /* padding */
+    --high-pad:50px;
+    --mid-pad:25px;
+    --small-pad:10px;
+
+    /* button badding */
+    --button-a-pad:10px 25px;
+
+    /* font */
+    --main-font:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+}
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+main,html{
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    font-family: var(--main-font);
+    font-weight: 700;
+}
+header{
+    display: flex;
+}
+header ul{
+    margin: var(--mid-pad);
+    padding: var(--small-pad);
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+header ul li{
+    display: flex;
+}
+header ul li p{
+    margin: 0px var(--small-pad);
+}
+section{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+section #box{
+    padding: var(--small-pad);
+    height: 80vh;
+    width: 80vw;
+    background-color: var(--s2-color);
+    border-radius: 10px;
+    display: grid;
+   
+}
+#box .block{
+    background-color: var(--s2-color);
+    height: 30px;
+    width: 30px;
+}
+.snake{
+    border: 5px solid red;
+    /* background-color: red; */
+}
+.snake-head{
+    border-radius: 10px;
+}
