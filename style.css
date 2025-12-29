@@ -74,9 +74,14 @@ section #box{
     width: 30px;
 }
 .snake{
-    border: 5px solid red;
-    /* background-color: red; */
+    border: 5px solid rgb(110, 0, 0);
+      /* border-bottom-right-radius: 50%;
+    border-top-right-radius: 50%; */
 }
 .snake-head{
-    border-radius: 10px;
+    border-bottom-right-radius: 50%;
+    border-top-right-radius: 50%;
+}
+.food{
+    border:10px solid rgb(10, 71, 7) ;
 }
