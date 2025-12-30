@@ -1,30 +1,53 @@
 const Box = document.getElementById("box");
+const Score = document.getElementById("score");
+const HighScore = document.getElementById("high_score");
+const col = Math.floor(Box.clientWidth / 30);
+const row = Math.floor(Box.clientHeight / 30);
 
-// Calculate grid size
-const size = 30; // block size in px
-const col = Math.floor(Box.clientWidth / size);
-const row = Math.floor(Box.clientHeight / size);
-
-// Setup CSS Grid dynamically
-Box.style.gridTemplateColumns = `repeat(${col}, 1fr)`;
-Box.style.gridTemplateRows = `repeat(${row}, 1fr)`;
-
+// initial vaiables
 const board = [];
-let lastPaintTime = 0;
-let speed = 5; //Moves per second
 let gameOver = false;
+let direction = { x: 0, y: 0 } // Direction
+let food = { x: 5, y: 5 }  // Food position
 
-// Snake State: Array of coordinates
+const score ={
+    current : 0,
+    highScore : 0
+}
+function setScore(){
+    if(score.current < 10 && score.highScore < 10){
+          Score.innerText = `0${score.current}`
+          HighScore.innerText = `0${score.highScore}` 
+    }else{
+     Score.innerText = `${score.current}`
+     HighScore.innerText = `${score.highScore}`   
+    }
+    
+}
+
+
+// move Animation
+let speed = 5;
+let currentTime = 0;
+
+// Move (one by one block of snake) _> it's helps to gt the result
+let temp = { x: 0, y: 0 }
+let temp2 = { x: 0, y: 0 }
+
+Box.style.gridTemplateColumns = `repeat(${col},1fr)`;
+Box.style.gridTemplateRows = `repeat(${row},1fr)`;
+
+// Snake
 let snake = [
-    { x: 2, y: 4 } // Head
-];
+    { x: 5, y: 5 }, //head
+    { x: 6, y: 5 }, //body
+    { x: 7, y: 5 }, //tail
 
-let inputDir = { x: 0, y: 0 }; // Moving direction
-let food = { x: 5, y: 5 };
+]
 
-// 1. Initialize Board (Create Divs)
+// Board with rows and columns
 for (let i = 0; i < row; i++) {
-    board[i] = [];
+    board.push([])
     for (let j = 0; j < col; j++) {
         const div = document.createElement("div");
         div.classList.add("block");
@@ -33,127 +56,152 @@ for (let i = 0; i < row; i++) {
     }
 }
 
-// 2. Main Game Loop
-function main(currentTime) {
-    window.requestAnimationFrame(main);
-    
-    if (gameOver) return;
-
-    // Control Speed: If not enough time has passed, skip this frame
-    if ((currentTime - lastPaintTime) / 1000 < 1 / speed) {
-        return;
-    }
-    
-    lastPaintTime = currentTime;
-    gameEngine();
-}
-
-// 3. Logic & Rendering
-function gameEngine() {
-    // --- Part 1: Updating the Snake & Food ---
-
-    // Check Collision (Walls or Self)
-    if (isCollide(snake)) {
-        gameOver = true;
-        inputDir = { x: 0, y: 0 };
-        alert("Game Over! Press any key to restart.");
-        snake = [{ x: 2, y: 4 }];
-        gameOver = false;
-        return;
-    }
-
-    // If you ate food: increment score and regenerate food
-    // We do NOT pop the tail, effectively growing the snake
-    if (snake[0].y === food.y && snake[0].x === food.x) {
-        snake.unshift({ x: snake[0].x + inputDir.x, y: snake[0].y + inputDir.y });
-        placeFood();
-        speed += 0.5; // Optional: Increase speed when eating
-    } else {
-        // Move Snake: Add new head, remove tail
-        // Only move if we have an input direction
-        if(inputDir.x !== 0 || inputDir.y !== 0) {
-            for (let i = snake.length - 2; i >= 0; i--) {
-                snake[i + 1] = { ...snake[i] };
-            }
-            snake[0].x += inputDir.x;
-            snake[0].y += inputDir.y;
-        }
-    }
-
-    // --- Part 2: Rendering ---
-    
-    // Clear previous classes
-    document.querySelectorAll('.snake').forEach(e => e.classList.remove('snake'));
-    document.querySelectorAll('.food').forEach(e => e.classList.remove('food'));
-
-    // Draw Snake
-    snake.forEach((e, index) => {
-        // Safety check to ensure we don't draw outside grid
-        if(board[e.x] && board[e.x][e.y]) {
-            board[e.x][e.y].classList.add('snake');
-        }
-    });
-
-    // Draw Food
-    if(board[food.x] && board[food.x][food.y]) {
-        board[food.x][food.y].classList.add('food');
-    }
-}
-
-// Helper: Collision Detection
-function isCollide(snakeArr) {
-    // 1. If you bump into yourself
-    for (let i = 1; i < snakeArr.length; i++) {
-        if (snakeArr[i].x === snakeArr[0].x && snakeArr[i].y === snakeArr[0].y) {
-            return true;
-        }
-    }
-    // 2. If you bump into the wall
-    // Note: Array index goes from 0 to (row - 1)
-    if (snakeArr[0].x >= row || snakeArr[0].x < 0 || snakeArr[0].y >= col || snakeArr[0].y < 0) {
-        return true;
-    }
-    return false;
-}
-
-// Helper: Random Food Generator
 function placeFood() {
-    let a = 2;
-    let b = row - 2;
-    // Simple random logic
+    document.querySelectorAll('.food').forEach(e => e.classList.remove('food'));
     food = {
-        x: Math.round(a + (b - a) * Math.random()),
-        y: Math.round(a + (col - 4 - a) * Math.random())
+        //random number between min and max:
+        // min + (max - min) * Math.random()
+        x: Math.floor(2 + (row - 2) * Math.random()),
+        y: Math.floor(2 + (col - 2) * Math.random())
+    }
+    board[food.x][food.y].classList.add("food")
+}
+
+function isEating() {
+    if (food.x == snake[0].x && food.y == snake[0].y) {
+        placeFood()
+        // add a body into snake
+        let el = [{x:food.x,y:food.y}];
+                el.unshift(snake[0]);
+                snake.shift(0);
+                snake = el.concat(snake);
+        speed += 0.3
+        //score update
+        score.current += 1
+        setScore()
     }
 }
 
-// 4. Input Logic
-window.addEventListener('keydown', e => {
+// renders snake on the board
+function render() {
+    document.querySelectorAll('.snake').forEach(e => e.classList.remove('snake'));
+
+    if (snake.length != 0) {
+        snake.forEach((el) => {
+            board[el.x][el.y].classList.add("snake")
+        })
+    }
+
+}
+
+// Collide check
+function isCollide() {
+        if (gameOver) {
+            direction = { x: 0, y: 0 }
+            snake = [
+                { x: 5, y: 5 }, //head
+                { x: 6, y: 5 }, //body
+                { x: 7, y: 5 }, //tail
+            ]
+            console.log("Game over");
+            // add event and make gameover false again and start the game again
+            // render()
+            if(score.current > score.highScore){
+                score.highScore = score.current-1
+                score.current = 0
+                setScore()
+            }
+
+            speed = 5
+            return gameOver = false
+
+        }
+    //sef collide
+    // for (let i = 3; i < snake.length; i++) {
+    //     if ((snake[i].x == snake[0].x) && (snake[i].y == snake[0].y)) {
+    //         alert("self")
+    //         return gameOver = true;
+
+    //     }
+    // }
+    return snake.slice(1).some(seg => seg.x === snake[0].x && seg.y === snake[0].y);
+    //------------------------------------------------------
+    // board colide
+    if (snake[0].x < 0 || snake[0].x >= row || snake[0].y < 0 || snake[0].y >= col) {
+        alert("border")
+       return gameOver = true
+    }
+    return false
+}
+
+function Move() {
+    isEating()
+    isCollide()
+    // one by one snake har coordinate lunga aor use move karaunga
+    temp.x = snake[0].x;
+    temp.y = snake[0].y;
+
+    snake[0].x += direction.x;
+    snake[0].y += direction.y;
+    if (direction.x != 0 || direction.y != 0) {
+        for (let i = 1; i < snake.length; i++) {
+            temp2.x = snake[i].x;
+            temp2.y = snake[i].y;
+
+            snake[i].x = temp.x;
+            snake[i].y = temp.y;
+            temp = { ...temp2 }
+        }
+    }
+
+    render()
+}
+
+function MoveAnimation(timestamps) {
+    window.requestAnimationFrame(MoveAnimation);
+
+    //time control
+    if (((timestamps - currentTime) / 1000) < (1 / speed)) {
+        return;
+    }
+
+    currentTime = timestamps
+    //move one step a time draw 
+    return Move()
+
+}
+
+window.addEventListener("keydown", (e) => {
     switch (e.key) {
-        case "ArrowUp":
-            if(inputDir.x !== 1) { // Prevent reversing
-                inputDir.x = -1; inputDir.y = 0;
-            }
-            break;
         case "ArrowDown":
-            if(inputDir.x !== -1) {
-                inputDir.x = 1; inputDir.y = 0;
+            if (direction.x != -1) {
+                direction = { x: 1, y: 0 };
             }
             break;
-        case "ArrowLeft":
-            if(inputDir.y !== 1) {
-                inputDir.y = -1; inputDir.x = 0;
+        case "ArrowUp":
+            if (direction.x != 1) {
+                direction = { x: -1, y: 0 };
             }
             break;
         case "ArrowRight":
-            if(inputDir.y !== -1) {
-                inputDir.y = 1; inputDir.x = 0;
+            if (direction.y != -1) {
+                direction = { x: 0, y: 1 };
+            }
+            break;
+        case "ArrowLeft":
+            if (direction.y != 1) {
+                direction = { x: 0, y: -1 };
             }
             break;
         default:
+            // direction = { x: 0, y: 0 }
             break;
     }
-});
+})
 
-// Start the game
-window.requestAnimationFrame(main);
+placeFood()
+render() // snake on the board
+window.requestAnimationFrame(MoveAnimation);
+
+
+
