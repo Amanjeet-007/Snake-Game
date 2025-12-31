@@ -85,3 +85,14 @@ section #box{
 .food{
     border:10px solid rgb(10, 71, 7) ;
 }
+
+@media (max-width: 1000px) {
+    header{
+        height: 100px;
+    }
+
+    #box{
+        width: 100vw;
+        height: calc(100vw - 100px);
+    }
+}
