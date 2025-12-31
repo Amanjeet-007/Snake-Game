@@ -117,14 +117,14 @@ function isCollide() {
 
         }
     //sef collide
-    // for (let i = 3; i < snake.length; i++) {
-    //     if ((snake[i].x == snake[0].x) && (snake[i].y == snake[0].y)) {
-    //         alert("self")
-    //         return gameOver = true;
+    for (let i = 3; i < snake.length; i++) {
+        if ((snake[i].x == snake[0].x) && (snake[i].y == snake[0].y)) {
+            alert("self")
+            return gameOver = true;
 
-    //     }
-    // }
-    return snake.slice(1).some(seg => seg.x === snake[0].x && seg.y === snake[0].y);
+        }
+    }
+    // snake.slice(1).some(seg => seg.x === snake[0].x && seg.y === snake[0].y);
     //------------------------------------------------------
     // board colide
     if (snake[0].x < 0 || snake[0].x >= row || snake[0].y < 0 || snake[0].y >= col) {
@@ -170,7 +170,28 @@ function MoveAnimation(timestamps) {
     return Move()
 
 }
+// --- Swipe Controls ---
+let startX = 0, startY = 0;
 
+Box.addEventListener("touchstart", e => {
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+});
+
+Box.addEventListener("touchend", e => {
+    const t = e.changedTouches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 30 && direction.y !== -1)      direction = {x:0, y:1};  // swipe → right
+        else if (dx < -30 && direction.y !== 1) direction = {x:0, y:-1}; // swipe ← left
+    } else {
+        if (dy > 30 && direction.x !== -1)      direction = {x:1, y:0};  // swipe ↓ down
+        else if (dy < -30 && direction.x !== 1) direction = {x:-1, y:0}; // swipe ↑ up
+    }
+});
 window.addEventListener("keydown", (e) => {
     switch (e.key) {
         case "ArrowDown":
