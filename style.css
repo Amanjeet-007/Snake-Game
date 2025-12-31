@@ -36,6 +36,7 @@ main,html{
     color: var(--secondary-color);
     font-family: var(--main-font);
     font-weight: 700;
+    overflow: hidden;
 }
 header{
     display: flex;
@@ -90,9 +91,13 @@ section #box{
     header{
         height: 100px;
     }
+    section{
+        width: 100vw;
+    }
 
     #box{
-        width: 100vw;
+        width: 100%;
         height: calc(100vw - 100px);
+        padding: 0px;
     }
 }

@@ -34,8 +34,8 @@ let currentTime = 0;
 let temp = { x: 0, y: 0 }
 let temp2 = { x: 0, y: 0 }
 
-Box.style.gridTemplateColumns = `repeat(${col},1fr)`;
-Box.style.gridTemplateRows = `repeat(${row},1fr)`;
+Box.style.gridTemplateColumns = `repeat(${col},30px)`;
+Box.style.gridTemplateRows = `repeat(${row},30px)`;
 
 // Snake
 let snake = [
